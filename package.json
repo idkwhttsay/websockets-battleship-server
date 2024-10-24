@@ -1,12 +1,16 @@
 {
   "name": "websockets-battleship-server",
   "version": "1.0.0",
-  "description": "",
-  "main": "dist/index.js",
+  "description": "Websockets battleship server application",
+  "main": "src/index.ts",
   "scripts": {
-    "build": "tsc"
+    "build": "tsc",
+    "start": "ts-node src/index.ts",
+    "start:dev": "nodemon src/index.ts",
+    "start:prod": "tsc src/index.ts && webpack"
   },
   "devDependencies": {
+    "@types/ws": "^8.5.12",
     "dotenv": "^16.4.5",
     "eslint": "^9.13.0",
     "nodemon": "^3.1.7",
