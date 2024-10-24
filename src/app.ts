@@ -16,15 +16,23 @@ export default class App {
                 data.password,
             );
 
-            console.log(RequestTypes.REG, res);
+            const regWsResponse = {
+                type: ResponseTypes.REG,
+                data: JSON.stringify(res),
+                id: 0,
+            } as Response;
 
-            ws.send(
-                JSON.stringify({
-                    type: ResponseTypes.REG,
-                    data: JSON.stringify(res),
-                    id: 0,
-                } as Response),
-            );
+            const updateWinnersWsResponse = {
+                type: ResponseTypes.WINNERS,
+                data: JSON.stringify(this.playerService.updateWinners()),
+                id: 0,
+            } as Response;
+
+            ws.send(JSON.stringify(regWsResponse));
+            ws.send(JSON.stringify(updateWinnersWsResponse));
+
+            console.log(ResponseTypes.REG, regWsResponse);
+            console.log(ResponseTypes.WINNERS, updateWinnersWsResponse);
         }
     }
 }

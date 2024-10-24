@@ -2,6 +2,7 @@ export type Player = {
     name: string;
     password: string;
     id: number;
+    wins: number;
 };
 
 export default class PlayerService {
@@ -33,6 +34,7 @@ export default class PlayerService {
                 name: name,
                 password: password,
                 id: PlayerService.id++,
+                wins: 0,
             };
 
             this.players.set(name, newPlayer);
@@ -46,5 +48,16 @@ export default class PlayerService {
         }
     }
 
-    updateWinners() {}
+    updateWinners() {
+        const winnersArr: { name: string; wins: number }[] = [];
+
+        this.players.forEach((value, key) => {
+            winnersArr.push({
+                name: value.name,
+                wins: value.wins,
+            });
+        });
+
+        return winnersArr;
+    }
 }
