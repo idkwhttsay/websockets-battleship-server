@@ -1,0 +1,21 @@
+{
+  "name": "websockets-battleship-server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc"
+  },
+  "devDependencies": {
+    "dotenv": "^16.4.5",
+    "eslint": "^9.13.0",
+    "nodemon": "^3.1.7",
+    "prettier": "^3.3.3",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.19.1",
+    "typescript": "^5.5.3",
+    "webpack": "^5.95.0",
+    "ws": "^8.18.0"
+  },
+  "private": true
+}
