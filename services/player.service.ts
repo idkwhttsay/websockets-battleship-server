@@ -1,8 +1,12 @@
+import { WebSocket } from "ws";
+import { Response, ResponseTypes } from "../models/types.ts";
+
 export type Player = {
     name: string;
     password: string;
     id: number;
     wins: number;
+    userWs: WebSocket;
 };
 
 export default class PlayerService {
@@ -11,7 +15,7 @@ export default class PlayerService {
 
     constructor() {}
 
-    loginOrRegister(name: string, password: string) {
+    loginOrRegister(name: string, password: string, ws: WebSocket) {
         if (this.players.has(name)) {
             const dbPlayer: Player = <Player>this.players.get(name);
             if (dbPlayer.password === password) {
@@ -35,6 +39,7 @@ export default class PlayerService {
                 password: password,
                 id: PlayerService.id++,
                 wins: 0,
+                userWs: ws,
             };
 
             this.players.set(name, newPlayer);
@@ -49,7 +54,7 @@ export default class PlayerService {
     }
 
     updateWinners() {
-        const winnersArr: { name: string; wins: number }[] = [];
+        let winnersArr: { name: string; wins: number }[] = [];
 
         this.players.forEach((value, key) => {
             winnersArr.push({
@@ -58,6 +63,18 @@ export default class PlayerService {
             });
         });
 
-        return winnersArr;
+        winnersArr = winnersArr.sort((a, b) => b.wins - a.wins);
+
+        const updateWinnersWsResponse = {
+            type: ResponseTypes.WINNERS,
+            data: JSON.stringify(winnersArr),
+            id: 0,
+        } as Response;
+
+        console.log(ResponseTypes.WINNERS, updateWinnersWsResponse);
+
+        this.players.forEach((value, key) => {
+            value.userWs.send(JSON.stringify(updateWinnersWsResponse));
+        });
     }
 }
