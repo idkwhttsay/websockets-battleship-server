@@ -57,12 +57,17 @@ export default class App {
 
                 this.roomService.updateRoomState(this.playerService);
             } else if (type === RequestTypes.ROOM_PLAYER) {
-                // TODO: if user tries to enter room that he is already in, don't allow him
-
-                this.roomService.addPlayerToRoomAndCreateGame(
-                    currentPlayer,
-                    data.indexRoom,
-                );
+                if (
+                    this.roomService.checkIfUserNotInRoom(
+                        data.indexRoom,
+                        currentPlayer,
+                    )
+                ) {
+                    this.roomService.addPlayerToRoomAndCreateGame(
+                        currentPlayer,
+                        data.indexRoom,
+                    );
+                }
 
                 this.roomService.updateRoomState(this.playerService);
             } else if (type === RequestTypes.GAME_SHIPS) {

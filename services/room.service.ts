@@ -45,6 +45,11 @@ export default class RoomService {
         );
     }
 
+    checkIfUserNotInRoom(indexRoom: number, player: Player): boolean {
+        const room = <Room>this.rooms.get(indexRoom);
+        return room.players[0] !== player;
+    }
+
     deleteRoomWithPlayer(ws: WebSocket, playerService: PlayerService): void {
         const player: Player = playerService.findPlayerByWs(ws);
     }
