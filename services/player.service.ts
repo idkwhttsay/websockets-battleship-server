@@ -17,8 +17,10 @@ export default class PlayerService {
         );
     }
 
-    deletePlayer(ws: WebSocket) {
+    deletePlayer(ws: WebSocket): void {
         const player: Player = this.findPlayerByWs(ws);
+
+        if (!player) return;
 
         this.players.delete(player.name);
         this.playersByID.delete(player.id);

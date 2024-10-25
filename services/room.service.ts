@@ -52,6 +52,20 @@ export default class RoomService {
 
     deleteRoomWithPlayer(ws: WebSocket, playerService: PlayerService): void {
         const player: Player = playerService.findPlayerByWs(ws);
+
+        const roomIndecies: number[] = [];
+
+        Array.from(this.rooms.values()).map((value: Room) => {
+            if (value.players[0] === player) {
+                roomIndecies.push(value.indexRoom);
+            }
+        });
+
+        roomIndecies.map((value: number) => {
+            this.rooms.delete(value);
+        });
+
+        this.updateRoomState(playerService);
     }
 
     createRoom(player: Player): void {

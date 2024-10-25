@@ -41,8 +41,7 @@ export default class App {
 
         // TODO: delete user from everywhere when he leaves
         ws.on("close", () => {
-            this.roomService.deleteRoomWithPlayer(ws, this.playerService); // TODO: delete user from rooms
-            // TODO: delete user from GameService: gameBoards, opponent, cellRepresentationGameBoard, turn
+            this.roomService.deleteRoomWithPlayer(ws, this.playerService);
             this.playerService.deletePlayer(ws);
         });
 
