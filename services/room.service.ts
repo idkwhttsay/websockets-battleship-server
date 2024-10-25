@@ -71,10 +71,6 @@ export default class RoomService {
             id: 0,
         };
 
-        console.log("ROOM: ", room);
-        console.log("PLAYER1: ", player1Res);
-        console.log("PLAYER2: ", player2Res);
-
         // Send game to player #1
         player1.userWs.send(JSON.stringify(player1Res));
         console.log(player1Res.type, player1Res);
