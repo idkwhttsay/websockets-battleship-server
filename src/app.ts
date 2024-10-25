@@ -39,7 +39,6 @@ export default class App {
 
         this.roomService.updateRoomState(this.playerService);
 
-        // TODO: delete user from everywhere when he leaves
         ws.on("close", () => {
             this.roomService.deleteRoomWithPlayer(ws, this.playerService);
             this.playerService.deletePlayer(ws);
