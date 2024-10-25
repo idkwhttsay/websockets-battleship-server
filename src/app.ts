@@ -34,6 +34,10 @@ export default class App {
             this.playerService.updateWinners();
         }
 
+        // TODO: updateRoomState when new user registers
+
+        // TODO: delete user from everywhere when he leaves
+
         const currentPlayer: Player | undefined =
             this.playerService.findPlayerByWs(ws);
 

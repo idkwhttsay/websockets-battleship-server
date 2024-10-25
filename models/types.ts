@@ -31,6 +31,12 @@ export enum ShipSize {
     HUGE = "huge",
 }
 
+export enum attackStatus {
+    MISS = "miss",
+    SHOT = "shoot",
+    KILL = "killed",
+}
+
 export type Ship = {
     position: { x: number; y: number };
     direction: boolean;
