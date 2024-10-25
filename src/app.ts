@@ -53,6 +53,8 @@ export default class App {
                 if (this.shipService.checkStartGame(data.gameId)) {
                     this.shipService.startGame(data.gameId, this.playerService);
                 }
+            } else if (type === RequestTypes.GAME_ATTACK) {
+                this.shipService.attack(ws, data, this.playerService);
             }
         } else {
             return;

@@ -11,6 +11,8 @@ export type Player = {
 
 export default class PlayerService {
     readonly players: Map<string, Player> = new Map<string, Player>();
+    readonly playersByID: Map<number, Player> = new Map<number, Player>();
+
     private static id: number = 0;
 
     constructor() {}
@@ -22,11 +24,7 @@ export default class PlayerService {
     }
 
     findPlayerById(playerId: number): Player {
-        return <Player>(
-            Array.from(this.players.values()).find(
-                (player: Player) => player.id === playerId,
-            )
-        );
+        return <Player>this.playersByID.get(playerId);
     }
 
     loginOrRegister(name: string, password: string, ws: WebSocket) {
@@ -56,7 +54,8 @@ export default class PlayerService {
                 userWs: ws,
             };
 
-            this.players.set(name, newPlayer);
+            this.players.set(newPlayer.name, newPlayer);
+            this.playersByID.set(newPlayer.id, newPlayer);
 
             return {
                 name: newPlayer.name,

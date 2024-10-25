@@ -40,7 +40,21 @@ export type Ship = {
 
 export type GameBoard = {
     gameId: number;
+    ships: number[][];
+    cellsLeft: number;
+    indexPlayer: number;
+};
+
+export type GameBoardRequest = {
+    gameId: number;
     ships: Ship[];
+    indexPlayer: number;
+};
+
+export type AttackRequest = {
+    gameId: number;
+    x: number;
+    y: number;
     indexPlayer: number;
 };
 
