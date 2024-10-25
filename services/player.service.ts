@@ -21,6 +21,14 @@ export default class PlayerService {
         );
     }
 
+    findPlayerById(playerId: number): Player {
+        return <Player>(
+            Array.from(this.players.values()).find(
+                (player: Player) => player.id === playerId,
+            )
+        );
+    }
+
     loginOrRegister(name: string, password: string, ws: WebSocket) {
         if (this.players.has(name)) {
             const dbPlayer: Player = <Player>this.players.get(name);

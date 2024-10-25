@@ -24,6 +24,26 @@ export type updateRoomResponse = {
     roomUsers: { name: string; index: number }[];
 };
 
+export enum ShipSize {
+    SMALL = "small",
+    MEDIUM = "medium",
+    LARGE = "large",
+    HUGE = "huge",
+}
+
+export type Ship = {
+    position: { x: number; y: number };
+    direction: boolean;
+    length: number;
+    type: ShipSize;
+};
+
+export type GameBoard = {
+    gameId: number;
+    ships: Ship[];
+    indexPlayer: number;
+};
+
 export type Response = {
     readonly type: ResponseTypes;
     readonly data: string;
