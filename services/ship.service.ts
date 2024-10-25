@@ -19,7 +19,11 @@ export default class ShipService {
         new Map<number, GameBoardRequest>();
     readonly turn: Map<number, Player> = new Map<number, Player>();
 
-    constructor() {}
+    static used: number[][];
+
+    constructor() {
+        ShipService.used = this.initialize2DArray(10);
+    }
 
     private initialize2DArray(n: number): number[][] {
         return Array.from({ length: n }, () => Array(n).fill(0));
@@ -93,7 +97,7 @@ export default class ShipService {
         const player1StartGameResponse = {
             type: ResponseTypes.GAME_START,
             data: JSON.stringify({
-                ships: JSON.stringify(gamePlayers[0].ships),
+                ships: gamePlayers[0].ships, // TODO: JSON STRINGIFY
                 currentPlayerIndex: gamePlayers[0].indexPlayer,
             }),
             id: 0,
@@ -102,7 +106,7 @@ export default class ShipService {
         const player2StartGameResponse = {
             type: ResponseTypes.GAME_START,
             data: JSON.stringify({
-                ships: JSON.stringify(gamePlayers[1].ships),
+                ships: gamePlayers[1].ships, // TODO: JSON STRINGIFY
                 currentPlayerIndex: gamePlayers[1].indexPlayer,
             }),
             id: 0,
@@ -185,6 +189,8 @@ export default class ShipService {
             attackedGameBoard.ships[attackInfo.y][attackInfo.x] = 3;
             this.gameBoards.set(defendingPlayer.id, attackedGameBoard);
 
+            ShipService.used = this.initialize2DArray(10);
+
             if (
                 this.checkIfDestroyed(
                     attackInfo.y,
@@ -229,8 +235,10 @@ export default class ShipService {
         }
     }
 
+    // TODO: fix infinite call of this function
     checkIfDestroyed(y: number, x: number, shipBoard: number[][]): boolean {
         let result: boolean = shipBoard[y][x] === 3;
+        ShipService.used[y][x] = 1;
 
         for (let i = 0; i < 4; ++i) {
             const to_x: number = x + dx[i];
@@ -242,9 +250,11 @@ export default class ShipService {
                 to_y < 0 ||
                 to_y > 9 ||
                 shipBoard[to_y][to_x] == 0 ||
-                shipBoard[to_y][to_x] == 2
-            )
+                shipBoard[to_y][to_x] == 2 ||
+                ShipService.used[to_y][to_x] === 1
+            ) {
                 continue;
+            }
 
             result = result && this.checkIfDestroyed(to_y, to_x, shipBoard);
         }

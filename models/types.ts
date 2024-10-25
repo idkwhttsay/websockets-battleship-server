@@ -33,7 +33,7 @@ export enum ShipSize {
 
 export enum attackStatus {
     MISS = "miss",
-    SHOT = "shoot",
+    SHOT = "shot",
     KILL = "killed",
 }
 
