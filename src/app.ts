@@ -1,13 +1,8 @@
 import { WebSocket } from "ws";
-import {
-    RequestTypes,
-    Response,
-    ResponseTypes,
-    Player,
-} from "../models/types.ts";
-import PlayerService from "../services/player.service.ts";
-import RoomService from "../services/room.service.ts";
-import GameService from "../services/game.service.ts";
+import { RequestTypes, Response, ResponseTypes, Player } from "../models/types";
+import PlayerService from "../services/player.service";
+import RoomService from "../services/room.service";
+import GameService from "../services/game.service";
 
 export default class App {
     private playerService: PlayerService = new PlayerService();

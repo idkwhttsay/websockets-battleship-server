@@ -7,7 +7,7 @@ import {
     ResponseTypes,
     Ship,
 } from "../models/types";
-import PlayerService from "./player.service.ts";
+import PlayerService from "./player.service";
 import { Player } from "../models/types";
 
 const dx: number[] = [-1, 0, 0, 1];

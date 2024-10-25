@@ -1,5 +1,5 @@
 import PlayerService from "./player.service";
-import { ResponseTypes, updateRoomResponse, Player } from "../models/types.ts";
+import { ResponseTypes, updateRoomResponse, Player } from "../models/types";
 import { WebSocket } from "ws";
 
 export type Room = {
