@@ -46,7 +46,8 @@ export default class App {
 
         // TODO: delete user from everywhere when he leaves
         ws.on("close", () => {
-            this.roomService.deleteRoomWithPlayer(ws, this.playerService);
+            this.roomService.deleteRoomWithPlayer(ws, this.playerService); // TODO: delete user from rooms
+            // TODO: delete user from GameService: gameBoards, opponent, cellRepresentationGameBoard, turn
             this.playerService.deletePlayer(ws);
         });
 
@@ -61,6 +62,8 @@ export default class App {
 
                 this.roomService.updateRoomState(this.playerService);
             } else if (type === RequestTypes.ROOM_PLAYER) {
+                // TODO: if user tries to enter room that he is already in, don't allow him
+
                 this.roomService.addPlayerToRoomAndCreateGame(
                     currentPlayer,
                     data.indexRoom,
@@ -90,6 +93,8 @@ export default class App {
                     randomAttackData,
                     this.playerService,
                 );
+            } else if (type === RequestTypes.GAME_SINGLE) {
+                // TODO: implement bot to play with
             }
         } else {
             return;
