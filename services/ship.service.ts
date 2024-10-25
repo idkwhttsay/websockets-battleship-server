@@ -12,7 +12,10 @@ import PlayerService, { Player } from "./player.service.ts";
 const dx: number[] = [-1, 0, 0, 1];
 const dy: number[] = [0, -1, 1, 0];
 
-export default class ShipService {
+const dxx: number[] = [-1, 0, 1, -1, 1, -1, 0, 1];
+const dyy: number[] = [-1, -1, -1, 0, 0, 1, 1, 1];
+
+export default class GameService {
     readonly gameBoards: Map<number, GameBoard> = new Map<number, GameBoard>();
     readonly opponent: Map<number, Player> = new Map<number, Player>();
     readonly cellRepresentationGameBoard: Map<number, GameBoardRequest> =
@@ -22,7 +25,7 @@ export default class ShipService {
     static used: number[][];
 
     constructor() {
-        ShipService.used = this.initialize2DArray(10);
+        GameService.used = this.initialize2DArray(10);
     }
 
     private initialize2DArray(n: number): number[][] {
@@ -165,7 +168,7 @@ export default class ShipService {
         // Attack statuses - 0: no action, empty cell, 1: there's a ship, 2: shot but miss, 3: shot on target, 4: destroyed
 
         if (attackedCell == 0) {
-            const attackResponseAttacker = {
+            const attackResponse = {
                 type: ResponseTypes.GAME_ATTACK,
                 data: JSON.stringify({
                     position: {
@@ -180,8 +183,8 @@ export default class ShipService {
             attackedGameBoard.ships[attackInfo.y][attackInfo.x] = 2;
             this.gameBoards.set(defendingPlayer.id, attackedGameBoard);
 
-            attackingPlayer.userWs.send(JSON.stringify(attackResponseAttacker));
-            defendingPlayer.userWs.send(JSON.stringify(attackResponseAttacker));
+            attackingPlayer.userWs.send(JSON.stringify(attackResponse));
+            defendingPlayer.userWs.send(JSON.stringify(attackResponse));
 
             this.sendTurn(attackInfo.gameId, defendingPlayer, attackingPlayer);
         } else if (attackedCell == 1) {
@@ -189,7 +192,7 @@ export default class ShipService {
             attackedGameBoard.ships[attackInfo.y][attackInfo.x] = 3;
             this.gameBoards.set(defendingPlayer.id, attackedGameBoard);
 
-            ShipService.used = this.initialize2DArray(10);
+            GameService.used = this.initialize2DArray(10);
 
             if (
                 this.checkIfDestroyed(
@@ -198,6 +201,7 @@ export default class ShipService {
                     attackedGameBoard.ships,
                 )
             ) {
+                GameService.used = this.initialize2DArray(10);
                 this.sendDestroyed(
                     attackInfo.y,
                     attackInfo.x,
@@ -205,8 +209,10 @@ export default class ShipService {
                     attackingPlayer,
                     defendingPlayer,
                 );
+
+                this.gameBoards.set(defendingPlayer.id, attackedGameBoard);
             } else {
-                const attackResponseAttacker = {
+                const attackResponse = {
                     type: ResponseTypes.GAME_ATTACK,
                     data: JSON.stringify({
                         position: {
@@ -218,27 +224,18 @@ export default class ShipService {
                     }),
                 };
 
-                attackingPlayer.userWs.send(
-                    JSON.stringify(attackResponseAttacker),
-                );
-
-                defendingPlayer.userWs.send(
-                    JSON.stringify(attackResponseAttacker),
-                );
-
-                this.sendTurn(
-                    attackInfo.gameId,
-                    attackingPlayer,
-                    defendingPlayer,
-                );
+                attackingPlayer.userWs.send(JSON.stringify(attackResponse));
+                defendingPlayer.userWs.send(JSON.stringify(attackResponse));
             }
+
+            this.sendTurn(attackInfo.gameId, attackingPlayer, defendingPlayer);
         }
     }
 
     // TODO: fix infinite call of this function
     checkIfDestroyed(y: number, x: number, shipBoard: number[][]): boolean {
         let result: boolean = shipBoard[y][x] === 3;
-        ShipService.used[y][x] = 1;
+        GameService.used[y][x] = 1;
 
         for (let i = 0; i < 4; ++i) {
             const to_x: number = x + dx[i];
@@ -251,7 +248,7 @@ export default class ShipService {
                 to_y > 9 ||
                 shipBoard[to_y][to_x] == 0 ||
                 shipBoard[to_y][to_x] == 2 ||
-                ShipService.used[to_y][to_x] === 1
+                GameService.used[to_y][to_x] === 1
             ) {
                 continue;
             }
@@ -268,5 +265,82 @@ export default class ShipService {
         shipBoard: number[][],
         attackingPlayer: Player,
         defendingPlayer: Player,
-    ): void {}
+    ): void {
+        GameService.used[y][x] = 1;
+        shipBoard[y][x] = 4;
+
+        const destroyedResponse = {
+            type: ResponseTypes.GAME_ATTACK,
+            data: JSON.stringify({
+                position: {
+                    x: x,
+                    y: y,
+                },
+                currentPlayer: attackingPlayer.id,
+                status: attackStatus.KILL,
+            }),
+            id: 0,
+        };
+
+        attackingPlayer.userWs.send(JSON.stringify(destroyedResponse));
+        defendingPlayer.userWs.send(JSON.stringify(destroyedResponse));
+
+        for (let i = 0; i < 8; ++i) {
+            const to_y: number = y + dyy[i];
+            const to_x: number = x + dxx[i];
+
+            if (
+                to_x < 0 ||
+                to_x > 9 ||
+                to_y < 0 ||
+                to_y > 9 ||
+                shipBoard[to_y][to_x] != 0
+            ) {
+                continue;
+            }
+
+            shipBoard[to_y][to_x] = 2;
+
+            const missResponse = {
+                type: ResponseTypes.GAME_ATTACK,
+                data: JSON.stringify({
+                    position: {
+                        x: to_x,
+                        y: to_y,
+                    },
+                    currentPlayer: attackingPlayer.id,
+                    status: attackStatus.MISS,
+                }),
+                id: 0,
+            };
+
+            attackingPlayer.userWs.send(JSON.stringify(missResponse));
+            defendingPlayer.userWs.send(JSON.stringify(missResponse));
+        }
+
+        for (let i = 0; i < 4; ++i) {
+            const to_y: number = y + dy[i];
+            const to_x: number = x + dx[i];
+
+            if (
+                to_x < 0 ||
+                to_x > 9 ||
+                to_y < 0 ||
+                to_y > 9 ||
+                shipBoard[to_y][to_x] == 0 ||
+                shipBoard[to_y][to_x] == 2 ||
+                GameService.used[to_y][to_x] === 1
+            ) {
+                continue;
+            }
+
+            this.sendDestroyed(
+                to_y,
+                to_x,
+                shipBoard,
+                attackingPlayer,
+                defendingPlayer,
+            );
+        }
+    }
 }

@@ -2,12 +2,12 @@ import { WebSocket } from "ws";
 import { RequestTypes, Response, ResponseTypes } from "../models/types.ts";
 import PlayerService, { Player } from "../services/player.service.ts";
 import RoomService from "../services/room.service.ts";
-import ShipService from "../services/ship.service.ts";
+import GameService from "../services/ship.service.ts";
 
 export default class App {
     private playerService: PlayerService = new PlayerService();
     private roomService: RoomService = new RoomService();
-    private shipService: ShipService = new ShipService();
+    private gameService: GameService = new GameService();
 
     constructor() {}
 
@@ -53,12 +53,12 @@ export default class App {
 
                 this.roomService.updateRoomState(this.playerService);
             } else if (type === RequestTypes.GAME_SHIPS) {
-                this.shipService.addShips(data);
-                if (this.shipService.checkStartGame(data.gameId)) {
-                    this.shipService.startGame(data.gameId, this.playerService);
+                this.gameService.addShips(data);
+                if (this.gameService.checkStartGame(data.gameId)) {
+                    this.gameService.startGame(data.gameId, this.playerService);
                 }
             } else if (type === RequestTypes.GAME_ATTACK) {
-                this.shipService.attack(ws, data, this.playerService);
+                this.gameService.attack(ws, data, this.playerService);
             }
         } else {
             return;
