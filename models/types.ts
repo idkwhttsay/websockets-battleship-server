@@ -19,6 +19,11 @@ export enum ResponseTypes {
     WINNERS = "update_winners",
 }
 
+export type updateRoomResponse = {
+    roomId: number;
+    roomUsers: { name: string; index: number }[];
+};
+
 export type Response = {
     readonly type: ResponseTypes;
     readonly data: string;

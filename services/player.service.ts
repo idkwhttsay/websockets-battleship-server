@@ -10,10 +10,16 @@ export type Player = {
 };
 
 export default class PlayerService {
-    private players: Map<string, Player> = new Map<string, Player>();
+    readonly players: Map<string, Player> = new Map<string, Player>();
     private static id: number = 0;
 
     constructor() {}
+
+    findPlayerByWs(ws: WebSocket) {
+        return Array.from(this.players.values()).find(
+            (player: Player) => player.userWs === ws,
+        );
+    }
 
     loginOrRegister(name: string, password: string, ws: WebSocket) {
         if (this.players.has(name)) {
