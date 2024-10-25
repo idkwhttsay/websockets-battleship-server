@@ -1,6 +1,11 @@
 import { WebSocket } from "ws";
-import { RequestTypes, Response, ResponseTypes } from "../models/types.ts";
-import PlayerService, { Player } from "../services/player.service.ts";
+import {
+    RequestTypes,
+    Response,
+    ResponseTypes,
+    Player,
+} from "../models/types.ts";
+import PlayerService from "../services/player.service.ts";
 import RoomService from "../services/room.service.ts";
 import GameService from "../services/game.service.ts";
 
@@ -40,6 +45,8 @@ export default class App {
 
         const currentPlayer: Player | undefined =
             this.playerService.findPlayerByWs(ws);
+
+        this.roomService.updateRoomState(this.playerService);
 
         if (currentPlayer) {
             if (type === RequestTypes.ROOM_CREATE) {

@@ -1,13 +1,5 @@
 import { WebSocket } from "ws";
-import { Response, ResponseTypes } from "../models/types.ts";
-
-export type Player = {
-    name: string;
-    password: string;
-    id: number;
-    wins: number;
-    userWs: WebSocket;
-};
+import { Response, ResponseTypes, Player } from "../models/types.ts";
 
 export default class PlayerService {
     readonly players: Map<string, Player> = new Map<string, Player>();

@@ -1,3 +1,5 @@
+import { WebSocket } from "ws";
+
 export enum RequestTypes {
     REG = "reg",
     ROOM_CREATE = "create_room",
@@ -22,6 +24,14 @@ export enum ResponseTypes {
 export type updateRoomResponse = {
     roomId: number;
     roomUsers: { name: string; index: number }[];
+};
+
+export type Player = {
+    name: string;
+    password: string;
+    id: number;
+    wins: number;
+    userWs: WebSocket;
 };
 
 export enum ShipSize {

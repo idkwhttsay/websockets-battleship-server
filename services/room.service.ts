@@ -1,5 +1,5 @@
-import PlayerService, { Player } from "./player.service";
-import { ResponseTypes, updateRoomResponse } from "../models/types.ts";
+import PlayerService from "./player.service";
+import { ResponseTypes, updateRoomResponse, Player } from "../models/types.ts";
 
 export type Room = {
     indexRoom: number;
