@@ -55,19 +55,19 @@ export default class RoomService {
 
         const player1Res = {
             type: ResponseTypes.GAME_CREATE,
-            data: {
-                idGame: indexRoom,
+            data: JSON.stringify({
+                idGame: room.indexRoom,
                 idPlayer: player1.id,
-            },
+            }),
             id: 0,
         };
 
         const player2Res = {
             type: ResponseTypes.GAME_CREATE,
-            data: {
-                idGame: indexRoom,
+            data: JSON.stringify({
+                idGame: room.indexRoom,
                 idPlayer: player2.id,
-            },
+            }),
             id: 0,
         };
 
