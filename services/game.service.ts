@@ -192,6 +192,21 @@ export default class GameService {
             attackedGameBoard.ships[attackInfo.y][attackInfo.x] = 3;
             this.gameBoards.set(defendingPlayer.id, attackedGameBoard);
 
+            if (attackedGameBoard.cellsLeft === 0) {
+                const winnerResponse = {
+                    type: ResponseTypes.GAME_FINISH,
+                    data: JSON.stringify({
+                        winPlayer: attackingPlayer.id,
+                    }),
+                    id: 0,
+                };
+
+                attackingPlayer.userWs.send(JSON.stringify(winnerResponse));
+                defendingPlayer.userWs.send(JSON.stringify(winnerResponse));
+                playerService.incrementWins(attackingPlayer);
+                return;
+            }
+
             GameService.used = this.initialize2DArray(10);
 
             if (

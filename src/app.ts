@@ -2,7 +2,7 @@ import { WebSocket } from "ws";
 import { RequestTypes, Response, ResponseTypes } from "../models/types.ts";
 import PlayerService, { Player } from "../services/player.service.ts";
 import RoomService from "../services/room.service.ts";
-import GameService from "../services/ship.service.ts";
+import GameService from "../services/game.service.ts";
 
 export default class App {
     private playerService: PlayerService = new PlayerService();

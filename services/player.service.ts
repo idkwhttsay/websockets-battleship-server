@@ -27,6 +27,12 @@ export default class PlayerService {
         return <Player>this.playersByID.get(playerId);
     }
 
+    incrementWins(player: Player): void {
+        player.wins++;
+        this.players.set(player.name, player);
+        this.updateWinners();
+    }
+
     loginOrRegister(name: string, password: string, ws: WebSocket) {
         if (this.players.has(name)) {
             const dbPlayer: Player = <Player>this.players.get(name);
