@@ -1,5 +1,6 @@
 import PlayerService from "./player.service";
 import { ResponseTypes, updateRoomResponse, Player } from "../models/types.ts";
+import { WebSocket } from "ws";
 
 export type Room = {
     indexRoom: number;
@@ -36,6 +37,16 @@ export default class RoomService {
                 }),
             );
         });
+    }
+
+    checkPlayerInRoom(player: Player) {
+        return Array.from(this.rooms.values()).find(
+            (value) => value.players[0] === player,
+        );
+    }
+
+    deleteRoomWithPlayer(ws: WebSocket, playerService: PlayerService): void {
+        const player: Player = playerService.findPlayerByWs(ws);
     }
 
     createRoom(player: Player): void {

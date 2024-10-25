@@ -39,18 +39,26 @@ export default class App {
             this.playerService.updateWinners();
         }
 
-        // TODO: updateRoomState when new user registers
-
-        // TODO: delete user from everywhere when he leaves
-
         const currentPlayer: Player | undefined =
             this.playerService.findPlayerByWs(ws);
 
         this.roomService.updateRoomState(this.playerService);
 
+        // TODO: delete user from everywhere when he leaves
+        ws.on("close", () => {
+            this.roomService.deleteRoomWithPlayer(ws, this.playerService);
+            this.playerService.deletePlayer(ws);
+        });
+
         if (currentPlayer) {
             if (type === RequestTypes.ROOM_CREATE) {
-                this.roomService.createRoom(currentPlayer);
+                if (
+                    this.roomService.checkPlayerInRoom(currentPlayer) ===
+                    undefined
+                ) {
+                    this.roomService.createRoom(currentPlayer);
+                }
+
                 this.roomService.updateRoomState(this.playerService);
             } else if (type === RequestTypes.ROOM_PLAYER) {
                 this.roomService.addPlayerToRoomAndCreateGame(

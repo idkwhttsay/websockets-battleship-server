@@ -9,10 +9,20 @@ export default class PlayerService {
 
     constructor() {}
 
-    findPlayerByWs(ws: WebSocket) {
-        return Array.from(this.players.values()).find(
-            (player: Player) => player.userWs === ws,
+    findPlayerByWs(ws: WebSocket): Player {
+        return <Player>(
+            Array.from(this.players.values()).find(
+                (player: Player) => player.userWs === ws,
+            )
         );
+    }
+
+    deletePlayer(ws: WebSocket) {
+        const player: Player = this.findPlayerByWs(ws);
+
+        this.players.delete(player.name);
+        this.playersByID.delete(player.id);
+        this.updateWinners();
     }
 
     findPlayerById(playerId: number): Player {
