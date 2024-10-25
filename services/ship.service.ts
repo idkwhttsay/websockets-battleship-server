@@ -232,7 +232,6 @@ export default class GameService {
         }
     }
 
-    // TODO: fix infinite call of this function
     checkIfDestroyed(y: number, x: number, shipBoard: number[][]): boolean {
         let result: boolean = shipBoard[y][x] === 3;
         GameService.used[y][x] = 1;

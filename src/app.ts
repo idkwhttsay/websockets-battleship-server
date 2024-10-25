@@ -59,6 +59,22 @@ export default class App {
                 }
             } else if (type === RequestTypes.GAME_ATTACK) {
                 this.gameService.attack(ws, data, this.playerService);
+            } else if (type === RequestTypes.GAME_RANDOM_ATTACK) {
+                const randX: number = Math.floor(Math.random() * 10);
+                const randY: number = Math.floor(Math.random() * 10);
+
+                const randomAttackData = {
+                    gameId: data.gameId,
+                    x: randX,
+                    y: randY,
+                    indexPlayer: data.indexPlayer,
+                };
+
+                this.gameService.attack(
+                    ws,
+                    randomAttackData,
+                    this.playerService,
+                );
             }
         } else {
             return;
