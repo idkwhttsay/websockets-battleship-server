@@ -17,6 +17,7 @@ export default class ShipService {
     readonly opponent: Map<number, Player> = new Map<number, Player>();
     readonly cellRepresentationGameBoard: Map<number, GameBoardRequest> =
         new Map<number, GameBoardRequest>();
+    readonly turn: Map<number, Player> = new Map<number, Player>();
 
     constructor() {}
 
@@ -116,31 +117,23 @@ export default class ShipService {
         player2.userWs.send(JSON.stringify(player2StartGameResponse));
         console.log(ResponseTypes.GAME_START, player2StartGameResponse);
 
-        this.sendTurn(player1, player2);
+        this.sendTurn(gameId, player1, player2);
     }
 
-    sendTurn(player1: Player, player2: Player): void {
-        const player1TurnResponse = {
+    sendTurn(gameId: number, player: Player, waiter: Player): void {
+        const playerTurnResponse = {
             type: ResponseTypes.GAME_TURN,
             data: JSON.stringify({
-                currentPlayer: player1.id,
+                currentPlayer: player.id,
             }),
             id: 0,
         };
 
-        const player2TurnResponse = {
-            type: ResponseTypes.GAME_TURN,
-            data: JSON.stringify({
-                currentPlayer: player2.id,
-            }),
-            id: 0,
-        };
+        this.turn.set(gameId, player);
+        player.userWs.send(JSON.stringify(playerTurnResponse));
+        waiter.userWs.send(JSON.stringify(playerTurnResponse));
 
-        player1.userWs.send(JSON.stringify(player1TurnResponse));
-        console.log(ResponseTypes.GAME_TURN, player1TurnResponse);
-
-        player2.userWs.send(JSON.stringify(player2TurnResponse));
-        console.log(ResponseTypes.GAME_TURN, player2TurnResponse);
+        console.log(ResponseTypes.GAME_TURN, playerTurnResponse);
     }
 
     attack(
@@ -151,6 +144,8 @@ export default class ShipService {
         const attackingPlayer: Player = playerService.findPlayerById(
             attackInfo.indexPlayer,
         );
+
+        if (attackingPlayer !== this.turn.get(attackInfo.gameId)) return;
 
         const defendingPlayer: Player = <Player>(
             this.opponent.get(attackingPlayer.id)
@@ -163,31 +158,17 @@ export default class ShipService {
         const attackedCell: number =
             attackedGameBoard.ships[attackInfo.y][attackInfo.x];
 
-        // TODO: Attack feedback (should be sent after every shot, miss and after kill sent miss for all cells around ship too)
-
         // Attack statuses - 0: no action, empty cell, 1: there's a ship, 2: shot but miss, 3: shot on target, 4: destroyed
 
         if (attackedCell == 0) {
             const attackResponseAttacker = {
                 type: ResponseTypes.GAME_ATTACK,
                 data: JSON.stringify({
-                    position: JSON.stringify({
+                    position: {
                         x: attackInfo.x,
                         y: attackInfo.y,
-                    }),
+                    },
                     currentPlayer: attackingPlayer.id,
-                    status: attackStatus.MISS,
-                }),
-            };
-
-            const attackResponseDefender = {
-                type: ResponseTypes.GAME_ATTACK,
-                data: JSON.stringify({
-                    position: JSON.stringify({
-                        x: attackInfo.x,
-                        y: attackInfo.y,
-                    }),
-                    currentPlayer: defendingPlayer.id,
                     status: attackStatus.MISS,
                 }),
             };
@@ -196,13 +177,13 @@ export default class ShipService {
             this.gameBoards.set(defendingPlayer.id, attackedGameBoard);
 
             attackingPlayer.userWs.send(JSON.stringify(attackResponseAttacker));
-            console.log(ResponseTypes.GAME_ATTACK, attackResponseAttacker);
+            defendingPlayer.userWs.send(JSON.stringify(attackResponseAttacker));
 
-            defendingPlayer.userWs.send(JSON.stringify(attackResponseDefender));
-            console.log(ResponseTypes.GAME_ATTACK, attackResponseDefender);
+            this.sendTurn(attackInfo.gameId, defendingPlayer, attackingPlayer);
         } else if (attackedCell == 1) {
             attackedGameBoard.cellsLeft--;
             attackedGameBoard.ships[attackInfo.y][attackInfo.x] = 3;
+            this.gameBoards.set(defendingPlayer.id, attackedGameBoard);
 
             if (
                 this.checkIfDestroyed(
@@ -219,27 +200,13 @@ export default class ShipService {
                     defendingPlayer,
                 );
             } else {
-                this.gameBoards.set(defendingPlayer.id, attackedGameBoard);
-
                 const attackResponseAttacker = {
                     type: ResponseTypes.GAME_ATTACK,
                     data: JSON.stringify({
-                        position: JSON.stringify({
+                        position: {
                             x: attackInfo.x,
                             y: attackInfo.y,
-                        }),
-                        currentPlayer: attackingPlayer.id,
-                        status: attackStatus.SHOT,
-                    }),
-                };
-
-                const attackResponseDefender = {
-                    type: ResponseTypes.GAME_ATTACK,
-                    data: JSON.stringify({
-                        position: JSON.stringify({
-                            x: attackInfo.x,
-                            y: attackInfo.y,
-                        }),
+                        },
                         currentPlayer: attackingPlayer.id,
                         status: attackStatus.SHOT,
                     }),
@@ -248,8 +215,15 @@ export default class ShipService {
                 attackingPlayer.userWs.send(
                     JSON.stringify(attackResponseAttacker),
                 );
+
                 defendingPlayer.userWs.send(
-                    JSON.stringify(attackResponseDefender),
+                    JSON.stringify(attackResponseAttacker),
+                );
+
+                this.sendTurn(
+                    attackInfo.gameId,
+                    attackingPlayer,
+                    defendingPlayer,
                 );
             }
         }
