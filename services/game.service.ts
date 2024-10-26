@@ -148,6 +148,7 @@ export default class GameService {
         ws: WebSocket,
         attackInfo: AttackRequest,
         playerService: PlayerService,
+        isRand: boolean,
     ): void {
         const attackingPlayer: Player = playerService.findPlayerById(
             attackInfo.indexPlayer,
@@ -162,6 +163,19 @@ export default class GameService {
         const attackedGameBoard: GameBoard = <GameBoard>(
             this.gameBoards.get(defendingPlayer.id)
         );
+
+        if (isRand) {
+            let randX: number = Math.floor(Math.random() * 10);
+            let randY: number = Math.floor(Math.random() * 10);
+
+            while (attackedGameBoard.ships[randY][randX] != 0) {
+                randX = Math.floor(Math.random() * 10);
+                randY = Math.floor(Math.random() * 10);
+            }
+
+            attackInfo.y = randY;
+            attackInfo.x = randX;
+        }
 
         const attackedCell: number =
             attackedGameBoard.ships[attackInfo.y][attackInfo.x];

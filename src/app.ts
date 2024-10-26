@@ -3,11 +3,13 @@ import { RequestTypes, Response, ResponseTypes, Player } from "../models/types";
 import PlayerService from "../services/player.service";
 import RoomService from "../services/room.service";
 import GameService from "../services/game.service";
+import BotService from "../services/bot.service";
 
 export default class App {
     private playerService: PlayerService = new PlayerService();
     private roomService: RoomService = new RoomService();
     private gameService: GameService = new GameService();
+    private botService: BotService = new BotService();
 
     constructor() {}
 
@@ -42,6 +44,7 @@ export default class App {
         ws.on("close", () => {
             this.roomService.deleteRoomWithPlayer(ws, this.playerService);
             this.playerService.deletePlayer(ws);
+            this.playerService.updateWinners();
         });
 
         if (currentPlayer) {
@@ -74,15 +77,12 @@ export default class App {
                     this.gameService.startGame(data.gameId, this.playerService);
                 }
             } else if (type === RequestTypes.GAME_ATTACK) {
-                this.gameService.attack(ws, data, this.playerService);
+                this.gameService.attack(ws, data, this.playerService, false);
             } else if (type === RequestTypes.GAME_RANDOM_ATTACK) {
-                const randX: number = Math.floor(Math.random() * 10);
-                const randY: number = Math.floor(Math.random() * 10);
-
                 const randomAttackData = {
                     gameId: data.gameId,
-                    x: randX,
-                    y: randY,
+                    x: -1,
+                    y: -1,
                     indexPlayer: data.indexPlayer,
                 };
 
@@ -90,9 +90,27 @@ export default class App {
                     ws,
                     randomAttackData,
                     this.playerService,
+                    true,
                 );
             } else if (type === RequestTypes.GAME_SINGLE) {
-                // TODO: implement bot to play with
+                const player: Player = this.playerService.findPlayerByWs(ws);
+                const bot: Player = this.botService.createBot();
+                this.playerService.loginOrRegister(
+                    bot.name,
+                    bot.password,
+                    bot.userWs,
+                );
+
+                const createGameResponse = {
+                    type: ResponseTypes.GAME_CREATE,
+                    data: JSON.stringify({
+                        idGame: bot.id,
+                        idPlayer: bot.id,
+                    }),
+                    id: 0,
+                };
+
+                ws.send(JSON.stringify(createGameResponse));
             }
         } else {
             return;
