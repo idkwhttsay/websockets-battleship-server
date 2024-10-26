@@ -20,13 +20,17 @@ export default class BotService {
         return result;
     }
 
+    generateRandomUrl(): string {
+        return `ws://localhost:3000/${this.generateRandomHexString(20)}`;
+    }
+
     createBot(): Player {
         return {
             id: BotService.id--,
             wins: 0,
             name: this.generateRandomHexString(20),
             password: this.generateRandomHexString(20),
-            userWs: new WebSocket(null),
+            userWs: new WebSocket(this.generateRandomUrl()),
         };
     }
 }

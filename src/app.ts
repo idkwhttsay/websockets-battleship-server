@@ -93,7 +93,6 @@ export default class App {
                     true,
                 );
             } else if (type === RequestTypes.GAME_SINGLE) {
-                const player: Player = this.playerService.findPlayerByWs(ws);
                 const bot: Player = this.botService.createBot();
                 this.playerService.loginOrRegister(
                     bot.name,
@@ -101,16 +100,9 @@ export default class App {
                     bot.userWs,
                 );
 
-                const createGameResponse = {
-                    type: ResponseTypes.GAME_CREATE,
-                    data: JSON.stringify({
-                        idGame: bot.id,
-                        idPlayer: bot.id,
-                    }),
-                    id: 0,
-                };
-
-                ws.send(JSON.stringify(createGameResponse));
+                const indexRoom: number =
+                    this.roomService.createRoom(currentPlayer);
+                this.roomService.addPlayerToRoomAndCreateGame(bot, indexRoom);
             }
         } else {
             return;

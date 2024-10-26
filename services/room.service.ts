@@ -29,13 +29,15 @@ export default class RoomService {
         });
 
         playerService.players.forEach((value: Player, key: string) => {
-            value.userWs.send(
-                JSON.stringify({
-                    type: ResponseTypes.ROOMS,
-                    data: JSON.stringify(updatedRoomList),
-                    id: 0,
-                }),
-            );
+            if (value.id >= 0) {
+                value.userWs.send(
+                    JSON.stringify({
+                        type: ResponseTypes.ROOMS,
+                        data: JSON.stringify(updatedRoomList),
+                        id: 0,
+                    }),
+                );
+            }
         });
     }
 
@@ -68,13 +70,14 @@ export default class RoomService {
         this.updateRoomState(playerService);
     }
 
-    createRoom(player: Player): void {
+    createRoom(player: Player): number {
         const newRoom: Room = {
             players: [player],
             indexRoom: RoomService.id++,
         };
 
         this.rooms.set(newRoom.indexRoom, newRoom);
+        return newRoom.indexRoom;
     }
 
     addPlayerToRoomAndCreateGame(player2: Player, indexRoom: number): void {
@@ -106,7 +109,9 @@ export default class RoomService {
         console.log(player1Res.type, player1Res);
 
         // Send game to player #2
-        player2.userWs.send(JSON.stringify(player2Res));
-        console.log(player2Res.type, player2Res);
+        if (player2.id >= 0) {
+            player2.userWs.send(JSON.stringify(player2Res));
+            console.log(player2Res.type, player2Res);
+        }
     }
 }
